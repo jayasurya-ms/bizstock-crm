@@ -38,7 +38,7 @@ const StockGoDown = () => {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      }
+      },
     );
     return response.data.stock;
   };
@@ -119,16 +119,21 @@ const StockGoDown = () => {
     }));
   };
   const processedStock = stock.map((godown) => {
-    let opening = 0;
-    let purchase = 0;
-    let purchaseR = 0;
-    let sale = 0;
-    let saleR = 0;
-    let total = 0;
+    let openingBox = 0,
+      openingPiece = 0;
+    let purchaseBox = 0,
+      purchasePiece = 0;
+    let purchaseRBox = 0,
+      purchaseRPiece = 0;
+    let saleBox = 0,
+      salePiece = 0;
+    let saleRBox = 0,
+      saleRPiece = 0;
+    let totalBox = 0,
+      totalPiece = 0;
 
     godown.items.forEach((item) => {
-      // const itemPiece = 1;
-      const itemPiece = item?.item_piece;
+      const itemPiece = Number(item?.item_piece) || 1;
 
       const openPurch =
         Number(item.open_purchase_box) * itemPiece +
@@ -158,22 +163,34 @@ const StockGoDown = () => {
       const totalVal =
         openingVal + purchaseVal - purchaseRVal - saleVal + saleRVal;
 
-      opening += openingVal;
-      purchase += purchaseVal;
-      purchaseR += purchaseRVal;
-      sale += saleVal;
-      saleR += saleRVal;
-      total += totalVal;
+      openingBox += Math.floor(openingVal / itemPiece);
+      openingPiece += openingVal % itemPiece;
+      purchaseBox += Math.floor(purchaseVal / itemPiece);
+      purchasePiece += purchaseVal % itemPiece;
+      purchaseRBox += Math.floor(purchaseRVal / itemPiece);
+      purchaseRPiece += purchaseRVal % itemPiece;
+      saleBox += Math.floor(saleVal / itemPiece);
+      salePiece += saleVal % itemPiece;
+      saleRBox += Math.floor(saleRVal / itemPiece);
+      saleRPiece += saleRVal % itemPiece;
+      totalBox += Math.floor(totalVal / itemPiece);
+      totalPiece += totalVal % itemPiece;
     });
 
     return {
       ...godown,
-      opening,
-      purchase,
-      purchaseR,
-      sale,
-      saleR,
-      total,
+      openingBox,
+      openingPiece,
+      purchaseBox,
+      purchasePiece,
+      purchaseRBox,
+      purchaseRPiece,
+      saleBox,
+      salePiece,
+      saleRBox,
+      saleRPiece,
+      totalBox,
+      totalPiece,
     };
   });
 
@@ -270,12 +287,21 @@ const StockGoDown = () => {
     piece: val % itemPiece,
   });
   const grand = {
-    opening: processedStock.reduce((sum, g) => sum + g.opening, 0),
-    purchase: processedStock.reduce((sum, g) => sum + g.purchase, 0),
-    purchaseR: processedStock.reduce((sum, g) => sum + g.purchaseR, 0),
-    sale: processedStock.reduce((sum, g) => sum + g.sale, 0),
-    saleR: processedStock.reduce((sum, g) => sum + g.saleR, 0),
-    total: processedStock.reduce((sum, g) => sum + g.total, 0),
+    openingBox: processedStock.reduce((sum, g) => sum + g.openingBox, 0),
+    openingPiece: processedStock.reduce((sum, g) => sum + g.openingPiece, 0),
+    purchaseBox: processedStock.reduce((sum, g) => sum + g.purchaseBox, 0),
+    purchasePiece: processedStock.reduce((sum, g) => sum + g.purchasePiece, 0),
+    purchaseRBox: processedStock.reduce((sum, g) => sum + g.purchaseRBox, 0),
+    purchaseRPiece: processedStock.reduce(
+      (sum, g) => sum + g.purchaseRPiece,
+      0,
+    ),
+    saleBox: processedStock.reduce((sum, g) => sum + g.saleBox, 0),
+    salePiece: processedStock.reduce((sum, g) => sum + g.salePiece, 0),
+    saleRBox: processedStock.reduce((sum, g) => sum + g.saleRBox, 0),
+    saleRPiece: processedStock.reduce((sum, g) => sum + g.saleRPiece, 0),
+    totalBox: processedStock.reduce((sum, g) => sum + g.totalBox, 0),
+    totalPiece: processedStock.reduce((sum, g) => sum + g.totalPiece, 0),
   };
   return (
     <Page>
@@ -760,66 +786,66 @@ const StockGoDown = () => {
                     {singlebranch === "Yes" && doublebranch === "Yes" ? (
                       <>
                         <td className="border border-black px-2 py-2 text-right">
-                          {toBoxPiece(godown.opening).box}
+                          {godown.openingBox}
                         </td>
                         <td className="border border-black px-2 py-2 text-right">
-                          {toBoxPiece(godown.opening).piece}
-                        </td>
-
-                        <td className="border border-black px-2 py-2 text-right">
-                          {toBoxPiece(godown.purchase).box}
-                        </td>
-                        <td className="border border-black px-2 py-2 text-right">
-                          {toBoxPiece(godown.purchase).piece}
+                          {godown.openingPiece}
                         </td>
 
                         <td className="border border-black px-2 py-2 text-right">
-                          {toBoxPiece(godown.purchaseR).box}
+                          {godown.purchaseBox}
                         </td>
                         <td className="border border-black px-2 py-2 text-right">
-                          {toBoxPiece(godown.purchaseR).piece}
-                        </td>
-
-                        <td className="border border-black px-2 py-2 text-right">
-                          {toBoxPiece(godown.sale).box}
-                        </td>
-                        <td className="border border-black px-2 py-2 text-right">
-                          {toBoxPiece(godown.sale).piece}
+                          {godown.purchasePiece}
                         </td>
 
                         <td className="border border-black px-2 py-2 text-right">
-                          {toBoxPiece(godown.saleR).box}
+                          {godown.purchaseRBox}
                         </td>
                         <td className="border border-black px-2 py-2 text-right">
-                          {toBoxPiece(godown.saleR).piece}
+                          {godown.purchaseRPiece}
                         </td>
 
                         <td className="border border-black px-2 py-2 text-right">
-                          {toBoxPiece(godown.total).box}
+                          {godown.saleBox}
                         </td>
                         <td className="border border-black px-2 py-2 text-right">
-                          {toBoxPiece(godown.total).piece}
+                          {godown.salePiece}
+                        </td>
+
+                        <td className="border border-black px-2 py-2 text-right">
+                          {godown.saleRBox}
+                        </td>
+                        <td className="border border-black px-2 py-2 text-right">
+                          {godown.saleRPiece}
+                        </td>
+
+                        <td className="border border-black px-2 py-2 text-right">
+                          {godown.totalBox}
+                        </td>
+                        <td className="border border-black px-2 py-2 text-right">
+                          {godown.totalPiece}
                         </td>
                       </>
                     ) : (
                       <>
                         <td className="border border-black px-2 py-2 text-right">
-                          {godown.opening}
+                          {godown.openingBox}
                         </td>
                         <td className="border border-black px-2 py-2 text-right">
-                          {godown.purchase}
+                          {godown.purchaseBox}
                         </td>
                         <td className="border border-black px-2 py-2 text-right">
-                          {godown.purchaseR}
+                          {godown.purchaseRBox}
                         </td>
                         <td className="border border-black px-2 py-2 text-right">
-                          {godown.sale}
+                          {godown.saleBox}
                         </td>
                         <td className="border border-black px-2 py-2 text-right">
-                          {godown.saleR}
+                          {godown.saleRBox}
                         </td>
                         <td className="border border-black px-2 py-2 text-right">
-                          {godown.total}
+                          {godown.totalBox}
                         </td>
                       </>
                     )}
@@ -835,66 +861,66 @@ const StockGoDown = () => {
                 {singlebranch === "Yes" && doublebranch === "Yes" ? (
                   <>
                     <td className="border border-black px-2 py-2 text-right">
-                      {toBoxPiece(grand.opening).box}
+                      {grand.openingBox}
                     </td>
                     <td className="border border-black px-2 py-2 text-right">
-                      {toBoxPiece(grand.opening).piece}
-                    </td>
-
-                    <td className="border border-black px-2 py-2 text-right">
-                      {toBoxPiece(grand.purchase).box}
-                    </td>
-                    <td className="border border-black px-2 py-2 text-right">
-                      {toBoxPiece(grand.purchase).piece}
+                      {grand.openingPiece}
                     </td>
 
                     <td className="border border-black px-2 py-2 text-right">
-                      {toBoxPiece(grand.purchaseR).box}
+                      {grand.purchaseBox}
                     </td>
                     <td className="border border-black px-2 py-2 text-right">
-                      {toBoxPiece(grand.purchaseR).piece}
-                    </td>
-
-                    <td className="border border-black px-2 py-2 text-right">
-                      {toBoxPiece(grand.sale).box}
-                    </td>
-                    <td className="border border-black px-2 py-2 text-right">
-                      {toBoxPiece(grand.sale).piece}
+                      {grand.purchasePiece}
                     </td>
 
                     <td className="border border-black px-2 py-2 text-right">
-                      {toBoxPiece(grand.saleR).box}
+                      {grand.purchaseRBox}
                     </td>
                     <td className="border border-black px-2 py-2 text-right">
-                      {toBoxPiece(grand.saleR).piece}
+                      {grand.purchaseRPiece}
                     </td>
 
                     <td className="border border-black px-2 py-2 text-right">
-                      {toBoxPiece(grand.total).box}
+                      {grand.saleBox}
                     </td>
                     <td className="border border-black px-2 py-2 text-right">
-                      {toBoxPiece(grand.total).piece}
+                      {grand.salePiece}
+                    </td>
+
+                    <td className="border border-black px-2 py-2 text-right">
+                      {grand.saleRBox}
+                    </td>
+                    <td className="border border-black px-2 py-2 text-right">
+                      {grand.saleRPiece}
+                    </td>
+
+                    <td className="border border-black px-2 py-2 text-right">
+                      {grand.totalBox}
+                    </td>
+                    <td className="border border-black px-2 py-2 text-right">
+                      {grand.totalPiece}
                     </td>
                   </>
                 ) : (
                   <>
                     <td className="border border-black px-2 py-2 text-right">
-                      {grand.opening}
+                      {grand.openingPiece}
                     </td>
                     <td className="border border-black px-2 py-2 text-right">
-                      {grand.purchase}
+                      {grand.purchasePiece}
                     </td>
                     <td className="border border-black px-2 py-2 text-right">
-                      {grand.purchaseR}
+                      {grand.purchaseRPiece}
                     </td>
                     <td className="border border-black px-2 py-2 text-right">
-                      {grand.sale}
+                      {grand.salePiece}
                     </td>
                     <td className="border border-black px-2 py-2 text-right">
-                      {grand.saleR}
+                      {grand.saleRPiece}
                     </td>
                     <td className="border border-black px-2 py-2 text-right">
-                      {grand.total}
+                      {grand.totalPiece}
                     </td>
                   </>
                 )}
