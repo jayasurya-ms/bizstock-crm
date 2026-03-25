@@ -41,7 +41,7 @@ export function NavUser({ user }) {
       setShowUpdateDialog({
         showUpdateDialog: true,
         version: serverVersion,
-      })
+      }),
     );
   };
   const handleLogout = useLogout();
@@ -105,7 +105,7 @@ export function NavUser({ user }) {
                       </span>
                     </span>
                     <span className="flex items-center gap-1 font-semibold">
-                      Updated on :24/03/2026
+                      Updated on :25/03/2026
                     </span>
                   </div>
                 </div>

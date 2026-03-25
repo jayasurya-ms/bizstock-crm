@@ -59,7 +59,7 @@ const SingleItemStock = () => {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      }
+      },
     );
     return response.data;
   };
@@ -100,261 +100,7 @@ const SingleItemStock = () => {
       }
     `,
   });
-  // const downloadExcel = async () => {
-  //   if (!reportData) {
-  //     toast({
-  //       title: "No Data",
-  //       description: "No data available to export",
-  //       variant: "destructive",
-  //     });
-  //     return;
-  //   }
 
-  //   const workbook = new ExcelJS.Workbook();
-  //   const worksheet = workbook.addWorksheet("Single Item Stock");
-
-  //   const stock = reportData.stock[0];
-
-  //   // Title Rows
-  //   worksheet.addRow([`Stock Report - ${stock.item_name}`]);
-  //   worksheet.addRow([
-  //     `From: ${moment(formData.from_date).format("DD-MM-YYYY")} To: ${moment(
-  //       formData.to_date
-  //     ).format("DD-MM-YYYY")}`,
-  //   ]);
-  //   worksheet.addRow([]);
-
-  //   // Header rows setup (3 header rows to mimic your table)
-  //   // First header row
-  //   worksheet.addRow([
-  //     "Date",
-  //     "Reference",
-  //     "Transaction",
-  //     "",
-  //     "",
-  //     "",
-  //     "",
-  //     "",
-  //     "",
-  //     "",
-  //     // 8 columns for Transaction spanning 8 cols
-  //     "Balance",
-  //     "",
-  //   ]);
-  //   worksheet.mergeCells("C4:J4"); // Transaction - colSpan=8
-  //   worksheet.mergeCells("K1:L2");
-  //   worksheet.addRow([
-  //     "",
-  //     "",
-  //     "Inward",
-  //     "",
-  //     "Inward Return",
-  //     "",
-  //     "Outward",
-  //     "",
-  //     "Outward Return",
-  //     "",
-  //     "",
-  //     "",
-  //   ]);
-  //   // Merge cells under Transaction groups
-  //   worksheet.mergeCells("C5:D5"); // Inward colSpan=2
-  //   worksheet.mergeCells("E5:F5"); // Inward Return colSpan=2
-  //   worksheet.mergeCells("G5:H5"); // Outward colSpan=2
-  //   worksheet.mergeCells("I5:J5"); // Outward Return colSpan=2
-
-  //   // Third header row (Box and Pc under each group)
-  //   worksheet.addRow([
-  //     "",
-  //     "",
-  //     "Box",
-  //     "Pc",
-  //     "Box",
-  //     "Pc",
-  //     "Box",
-  //     "Pc",
-  //     "Box",
-  //     "Pc",
-  //     "Box",
-  //     "Pc",
-  //   ]);
-
-  //   // Style all header rows (rows 4,5,6)
-  //   [4, 5, 6].forEach((rowNumber) => {
-  //     const row = worksheet.getRow(rowNumber);
-  //     row.eachCell((cell) => {
-  //       cell.font = { bold: true };
-  //       cell.fill = {
-  //         type: "pattern",
-  //         pattern: "solid",
-  //         fgColor: { argb: "F3F4F6" },
-  //       };
-  //       cell.alignment = { horizontal: "center", vertical: "middle" };
-  //       cell.border = {
-  //         top: { style: "thin" },
-  //         left: { style: "thin" },
-  //         bottom: { style: "thin" },
-  //         right: { style: "thin" },
-  //       };
-  //     });
-  //   });
-
-  //   // Opening Stock Row (row 7)
-  //   const openingRowValues = [
-  //     moment(formData.from_date).format("DD MMM YYYY"),
-  //     "Opening Stock",
-  //   ];
-
-  //   if (singlebranch === "Yes" && doublebranch === "Yes") {
-  //     openingRowValues.push(
-  //       "",
-  //       "",
-  //       "",
-  //       "",
-  //       "",
-  //       "",
-  //       "",
-  //       "",
-  //       openingStock?.box || "",
-  //       openingStock?.piece || ""
-  //     );
-  //   } else {
-  //     openingRowValues.push(
-  //       "",
-  //       "",
-  //       "",
-  //       "",
-  //       "",
-  //       "",
-  //       "",
-  //       "",
-  //       openingStock?.box || "",
-  //       ""
-  //     );
-  //   }
-  //   worksheet.addRow(openingRowValues);
-
-  //   transactions.forEach((transaction) => {
-  //     const rowVals = [
-  //       moment(transaction.date).format("DD MMM YYYY"),
-  //       transaction.ref,
-  //     ];
-
-  //     if (singlebranch === "Yes" && doublebranch === "Yes") {
-  //       // Inward
-  //       rowVals.push(
-  //         transaction.type === "purchase" ? transaction.boxes : "",
-  //         transaction.type === "purchase" ? transaction.piece : ""
-  //       );
-  //       // Inward Return
-  //       rowVals.push(
-  //         transaction.type === "purchasereturn" ? transaction.boxes : "",
-  //         transaction.type === "purchasereturn" ? transaction.piece : ""
-  //       );
-  //       // Outward
-  //       rowVals.push(
-  //         transaction.type === "sale" ? transaction.boxes : "",
-  //         transaction.type === "sale" ? transaction.piece : ""
-  //       );
-  //       // Outward Return
-  //       rowVals.push(
-  //         transaction.type === "salereturn" ? transaction.boxes : "",
-  //         transaction.type === "salereturn" ? transaction.piece : ""
-  //       );
-  //       // Balance
-  //       rowVals.push(
-  //         transaction.balance?.box ?? "",
-  //         transaction.balance?.piece ?? ""
-  //       );
-  //     } else {
-  //       // Single branch or box only (no piece columns)
-  //       rowVals.push(
-  //         transaction.type === "purchase" ? transaction.boxes : "",
-  //         "", // placeholder for pc col removed, so colspan merges
-  //         transaction.type === "purchasereturn" ? transaction.boxes : "",
-  //         "",
-  //         transaction.type === "sale" ? transaction.boxes : "",
-  //         "",
-  //         transaction.type === "salereturn" ? transaction.boxes : "",
-  //         "",
-  //         transaction.balance?.box ?? "",
-  //         ""
-  //       );
-  //     }
-  //     worksheet.addRow(rowVals);
-  //   });
-
-  //   // Closing Stock row (last row)
-  //   const closingRowValues = [
-  //     moment(formData.to_date).format("DD MMM YYYY"),
-  //     "Closing Stock",
-  //   ];
-
-  //   if (singlebranch === "Yes" && doublebranch === "Yes") {
-  //     closingRowValues.push(
-  //       "",
-  //       "",
-  //       "",
-  //       "",
-  //       "",
-  //       "",
-  //       "",
-  //       "",
-  //       total?.box ?? "",
-  //       total?.piece ?? ""
-  //     );
-  //   } else {
-  //     closingRowValues.push(
-  //       "",
-  //       "",
-  //       "",
-  //       "",
-  //       "",
-  //       "",
-  //       "",
-  //       "",
-  //       total?.box ?? "",
-  //       ""
-  //     );
-  //   }
-  //   const closingRow = worksheet.addRow(closingRowValues);
-
-  //   // Style Closing row bold
-  //   closingRow.eachCell((cell) => {
-  //     cell.font = { bold: true };
-  //   });
-
-  //   // Adjust columns width for readability
-  //   worksheet.columns = [
-  //     { width: 14 }, // Date
-  //     { width: 20 }, // Reference
-  //     { width: 8 },
-  //     { width: 6 }, // Inward Box, Pc
-  //     { width: 8 },
-  //     { width: 6 }, // Inward Return Box, Pc
-  //     { width: 8 },
-  //     { width: 6 }, // Outward Box, Pc
-  //     { width: 8 },
-  //     { width: 6 }, // Outward Return Box, Pc
-  //     { width: 8 },
-  //     { width: 6 },
-  //     { width: 6 }, // Balance Box, Pc
-  //   ];
-
-  //   // Final save/export
-  //   const buffer = await workbook.xlsx.writeBuffer();
-  //   const blob = new Blob([buffer], {
-  //     type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-  //   });
-  //   const url = URL.createObjectURL(blob);
-  //   const link = document.createElement("a");
-  //   link.href = url;
-  //   link.download = `single_item_stock_${stock.item_name}_${moment().format(
-  //     "YYYYMMDD"
-  //   )}.xlsx`;
-  //   link.click();
-  //   URL.revokeObjectURL(url);
-  // };
   const downloadExcel = async () => {
     if (!reportData) {
       toast({
@@ -374,7 +120,7 @@ const SingleItemStock = () => {
     worksheet.addRow([`Stock Report - ${stock.item_name}`]);
     worksheet.addRow([
       `From: ${moment(formData.from_date).format("DD-MM-YYYY")} To: ${moment(
-        formData.to_date
+        formData.to_date,
       ).format("DD-MM-YYYY")}`,
     ]);
     worksheet.addRow([]);
@@ -508,7 +254,7 @@ const SingleItemStock = () => {
         "",
         "",
         openingStock?.box || "",
-        openingStock?.piece || ""
+        openingStock?.piece || "",
       );
     } else {
       openingRow.push("", "", "", "", openingStock?.box || "");
@@ -533,7 +279,7 @@ const SingleItemStock = () => {
           transaction.type === "salereturn" ? transaction.boxes : "",
           transaction.type === "salereturn" ? transaction.piece : "",
           transaction.balance?.box ?? "",
-          transaction.balance?.piece ?? ""
+          transaction.balance?.piece ?? "",
         );
       } else {
         row.push(
@@ -541,7 +287,7 @@ const SingleItemStock = () => {
           transaction.type === "purchasereturn" ? transaction.boxes : "",
           transaction.type === "sale" ? transaction.boxes : "",
           transaction.type === "salereturn" ? transaction.boxes : "",
-          transaction.balance?.box ?? ""
+          transaction.balance?.box ?? "",
         );
       }
 
@@ -564,7 +310,7 @@ const SingleItemStock = () => {
         "",
         "",
         total?.box ?? "",
-        total?.piece ?? ""
+        total?.piece ?? "",
       );
     } else {
       closingRow.push("", "", "", "", total?.box ?? "");
@@ -608,7 +354,7 @@ const SingleItemStock = () => {
     const link = document.createElement("a");
     link.href = url;
     link.download = `single_item_stock_${stock.item_name}_${moment().format(
-      "YYYYMMDD"
+      "YYYYMMDD",
     )}.xlsx`;
     link.click();
     URL.revokeObjectURL(url);
@@ -626,6 +372,7 @@ const SingleItemStock = () => {
       }
       const stock = reportData?.stock[0];
       const itemPiece = Number(stock.item_piece) || 1;
+      // console.log(stock.item_piece);
       const openingPurch =
         Number(stock.openpurch) * itemPiece + Number(stock.openpurch_piece);
       const openingSale =
@@ -655,10 +402,11 @@ const SingleItemStock = () => {
       const purchaseTransactions =
         reportData?.purchase?.map((p) => {
           const purchase =
-            (p?.purchase_sub_box ?? 0) + (p?.purchase_sub_piece ?? 0);
-
+            (p?.purchase_sub_box ?? 0) * itemPiece +
+            (p?.purchase_sub_piece ?? 0);
+          // console.log(purchase);
           const purchaseBP = toBoxPiece(purchase);
-
+          // console.log(purchaseBP);
           return {
             date: p?.purchase_date,
             ref: `P-${(p?.purchase_ref || "").split("-").pop() || ""}`,
@@ -672,7 +420,8 @@ const SingleItemStock = () => {
       const purchaseReturnTransactions =
         reportData?.purchaseR?.map((p) => {
           const purchasereturn =
-            (p?.purchase_sub_box ?? 0) + (p?.purchase_sub_piece ?? 0);
+            (p?.purchase_sub_box ?? 0) * itemPiece +
+            (p?.purchase_sub_piece ?? 0);
 
           const purchaseBPR = toBoxPiece(purchasereturn);
           return {
@@ -689,7 +438,8 @@ const SingleItemStock = () => {
         reportData?.sale?.map((s) => {
           // const dispatch = s?.dispatch_sub_box + s?.dispatch_sub_piece ?? 0;
           const dispatch =
-            (s?.dispatch_sub_box ?? 0) + (s?.dispatch_sub_piece ?? 0);
+            (s?.dispatch_sub_box ?? 0) * itemPiece +
+            (s?.dispatch_sub_piece ?? 0);
           const dispatchBP = toBoxPiece(dispatch);
           return {
             date: s?.dispatch_date,
@@ -706,7 +456,8 @@ const SingleItemStock = () => {
           // const dispatchreturn =
           //   s?.dispatch_sub_box + s?.dispatch_sub_piece ?? 0;
           const dispatchreturn =
-            (s?.dispatch_sub_box ?? 0) + (s?.dispatch_sub_piece ?? 0);
+            (s?.dispatch_sub_box ?? 0) * itemPiece +
+            (s?.dispatch_sub_piece ?? 0);
           const dispatchBPR = toBoxPiece(dispatchreturn);
           return {
             date: s?.dispatch_date,
@@ -1120,7 +871,7 @@ const SingleItemStock = () => {
             <div className="flex flex-col gap-2">
               <div className="flex justify-between items-center">
                 <h1 className="text-base font-bold text-gray-800 px-2">
-                  Single Item Stock 
+                  Single Item Stock
                 </h1>
                 <div className="flex gap-[2px]">
                   <button
