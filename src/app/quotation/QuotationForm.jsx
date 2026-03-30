@@ -183,7 +183,7 @@ const QuotationForm = () => {
   const { data: godownData, isLoading: loadinggodown } = useFetchGoDown();
   const { data: quotationRef, isLoading: loadingref } = useFetchQuotationRef();
 
-  const fetchAndSetStock = async (rowIndex, itemId, godownId, updatedData) => {
+  const fetchAndSetStock = async (rowIndex, itemId, godownId) => {
     if (!itemId || !godownId) return;
 
     try {
@@ -226,44 +226,32 @@ const QuotationForm = () => {
 
       const totalBP = toBoxPiece(total);
 
-      updatedData[rowIndex].stockData = {
-        total,
-        total_box: totalBP.box,
-        total_piece: totalBP.piece,
-      };
+      setInvoiceData((prev) => {
+        const newData = [...prev];
+        if (newData[rowIndex]) {
+          newData[rowIndex].stockData = {
+            total,
+            total_box: totalBP.box,
+            total_piece: totalBP.piece,
+          };
+        }
+        return newData;
+      });
     } catch (err) {
       console.error("Stock fetch error:", err);
-      updatedData[rowIndex].stockData = {
-        total: 0,
-        total_box: 0,
-        total_piece: 0,
-      };
-    }
-
-    setInvoiceData([...updatedData]);
-  };
-  useEffect(() => {
-    if (!editId) {
-      invoiceData.forEach((row, index) => {
-        const { quotation_sub_item_id, quotation_sub_godown_id } = row;
-        if (quotation_sub_item_id && quotation_sub_godown_id) {
-          fetchAndSetStock(
-            index,
-            quotation_sub_item_id,
-            quotation_sub_godown_id,
-            [...invoiceData]
-          );
+      setInvoiceData((prev) => {
+        const newData = [...prev];
+        if (newData[rowIndex]) {
+          newData[rowIndex].stockData = {
+            total: 0,
+            total_box: 0,
+            total_piece: 0,
+          };
         }
+        return newData;
       });
     }
-  }, [
-    editId,
-    invoiceData
-      .map(
-        (row) => row?.quotation_sub_item_id + "-" + row?.quotation_sub_godown_id
-      )
-      .join(","),
-  ]);
+  };
   const handlePaymentChange = async (selectedValue, rowIndex, fieldName) => {
     let value = selectedValue?.target?.value ?? selectedValue;
     const updatedData = [...invoiceData];
@@ -295,7 +283,24 @@ const QuotationForm = () => {
           [rowIndex]: [],
         }));
       }
+
+      if (updatedData[rowIndex].quotation_sub_godown_id) {
+        fetchAndSetStock(
+          rowIndex,
+          value,
+          updatedData[rowIndex].quotation_sub_godown_id
+        );
+      }
       focusBoxInput(rowIndex);
+    } else if (fieldName == "quotation_sub_godown_id") {
+      updatedData[rowIndex][fieldName] = value;
+      if (updatedData[rowIndex].quotation_sub_item_id) {
+        fetchAndSetStock(
+          rowIndex,
+          updatedData[rowIndex].quotation_sub_item_id,
+          value
+        );
+      }
     } else {
       if (
         ["quotation_sub_box", "quotation_sub_piece"].includes(fieldName) &&
@@ -354,6 +359,15 @@ const QuotationForm = () => {
         quotation_sub_rate: foundItem.item_rate,
         quotation_sub_piece: foundItem.item_piece,
       };
+
+      if (updatedData[rowIndex].quotation_sub_godown_id) {
+        fetchAndSetStock(
+          rowIndex,
+          foundItem.id,
+          updatedData[rowIndex].quotation_sub_godown_id
+        );
+      }
+
       setInvoiceData(updatedData);
       setInputValues((prev) => ({ ...prev, [rowIndex]: "" }));
 

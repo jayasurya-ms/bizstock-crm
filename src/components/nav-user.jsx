@@ -105,7 +105,7 @@ export function NavUser({ user }) {
                       </span>
                     </span>
                     <span className="flex items-center gap-1 font-semibold">
-                      Updated on :25/03/2026
+                      Updated on :30/03/2026
                     </span>
                   </div>
                 </div>
@@ -134,12 +134,24 @@ export function NavUser({ user }) {
                 </DropdownMenuLabel>
 
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => setOpenProfile(true)}>
+                <DropdownMenuItem
+                  onSelect={() => {
+                    setTimeout(() => {
+                      setOpenProfile(true);
+                    }, 0);
+                  }}
+                >
                   <User />
 
                   <span className=" cursor-pointer">Profile</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setOpen(true)}>
+                <DropdownMenuItem
+                  onSelect={() => {
+                    setTimeout(() => {
+                      setOpen(true);
+                    }, 0);
+                  }}
+                >
                   <Key />
 
                   <span className=" cursor-pointer">Change Password</span>
