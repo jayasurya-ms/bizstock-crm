@@ -187,7 +187,7 @@ const CreateDispatchReturnForm = () => {
   const { data: dispatchRef, isLoading: loadingref } =
     useFetchDispatchReturnRef();
 
-  const fetchAndSetStock = async (rowIndex, itemId, godownId, updatedData) => {
+  const fetchAndSetStock = async (rowIndex, itemId, godownId) => {
     if (!itemId || !godownId) return;
 
     try {
@@ -230,44 +230,32 @@ const CreateDispatchReturnForm = () => {
 
       const totalBP = toBoxPiece(total);
 
-      updatedData[rowIndex].stockData = {
-        total,
-        total_box: totalBP.box,
-        total_piece: totalBP.piece,
-      };
+      setInvoiceData((prev) => {
+        const newData = [...prev];
+        if (newData[rowIndex]) {
+          newData[rowIndex].stockData = {
+            total,
+            total_box: totalBP.box,
+            total_piece: totalBP.piece,
+          };
+        }
+        return newData;
+      });
     } catch (err) {
       console.error("Stock fetch error:", err);
-      updatedData[rowIndex].stockData = {
-        total: 0,
-        total_box: 0,
-        total_piece: 0,
-      };
-    }
-
-    setInvoiceData([...updatedData]);
-  };
-  useEffect(() => {
-    if (!editId) {
-      invoiceData.forEach((row, index) => {
-        const { dispatch_sub_item_id, dispatch_sub_godown_id } = row;
-        if (dispatch_sub_item_id && dispatch_sub_godown_id) {
-          fetchAndSetStock(
-            index,
-            dispatch_sub_item_id,
-            dispatch_sub_godown_id,
-            [...invoiceData]
-          );
+      setInvoiceData((prev) => {
+        const newData = [...prev];
+        if (newData[rowIndex]) {
+          newData[rowIndex].stockData = {
+            total: 0,
+            total_box: 0,
+            total_piece: 0,
+          };
         }
+        return newData;
       });
     }
-  }, [
-    editId,
-    invoiceData
-      .map(
-        (row) => row?.dispatch_sub_item_id + "-" + row?.dispatch_sub_godown_id
-      )
-      .join(","),
-  ]);
+  };
   const handlePaymentChange = async (selectedValue, rowIndex, fieldName) => {
     let value = selectedValue?.target?.value ?? selectedValue;
     const updatedData = [...invoiceData];
@@ -300,7 +288,24 @@ const CreateDispatchReturnForm = () => {
           [rowIndex]: [],
         }));
       }
+
+      if (updatedData[rowIndex].dispatch_sub_godown_id) {
+        fetchAndSetStock(
+          rowIndex,
+          value,
+          updatedData[rowIndex].dispatch_sub_godown_id
+        );
+      }
       focusBoxInput(rowIndex);
+    } else if (fieldName == "dispatch_sub_godown_id") {
+      updatedData[rowIndex][fieldName] = value;
+      if (updatedData[rowIndex].dispatch_sub_item_id) {
+        fetchAndSetStock(
+          rowIndex,
+          updatedData[rowIndex].dispatch_sub_item_id,
+          value
+        );
+      }
     } else {
       if (
         ["dispatch_sub_box", "dispatch_sub_piece"].includes(fieldName) &&

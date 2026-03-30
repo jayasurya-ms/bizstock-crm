@@ -191,7 +191,7 @@ const CreatePurchaseReturn = () => {
   const { data: purchaseRef, isLoading: loadingref } =
     useFetchPurchaseReturnRef();
 
-  const fetchAndSetStock = async (rowIndex, itemId, godownId, updatedData) => {
+  const fetchAndSetStock = async (rowIndex, itemId, godownId) => {
     if (!itemId || !godownId) return;
 
     try {
@@ -234,38 +234,32 @@ const CreatePurchaseReturn = () => {
 
       const totalBP = toBoxPiece(total);
 
-      updatedData[rowIndex].stockData = {
-        total,
-        total_box: totalBP.box,
-        total_piece: totalBP.piece,
-      };
+      setInvoiceData((prev) => {
+        const newData = [...prev];
+        if (newData[rowIndex]) {
+          newData[rowIndex].stockData = {
+            total,
+            total_box: totalBP.box,
+            total_piece: totalBP.piece,
+          };
+        }
+        return newData;
+      });
     } catch (err) {
       console.error("Stock fetch error:", err);
-      updatedData[rowIndex].stockData = {
-        total: 0,
-        total_box: 0,
-        total_piece: 0,
-      };
+      setInvoiceData((prev) => {
+        const newData = [...prev];
+        if (newData[rowIndex]) {
+          newData[rowIndex].stockData = {
+            total: 0,
+            total_box: 0,
+            total_piece: 0,
+          };
+        }
+        return newData;
+      });
     }
-
-    setInvoiceData([...updatedData]);
   };
-  useEffect(() => {
-    invoiceData.forEach((row, index) => {
-      const { purchase_sub_item_id, purchase_sub_godown_id } = row;
-      if (purchase_sub_item_id && purchase_sub_godown_id) {
-        fetchAndSetStock(index, purchase_sub_item_id, purchase_sub_godown_id, [
-          ...invoiceData,
-        ]);
-      }
-    });
-  }, [
-    invoiceData
-      .map(
-        (row) => row?.purchase_sub_item_id + "-" + row?.purchase_sub_godown_id
-      )
-      .join(","),
-  ]);
   const handlePaymentChange = async (selectedValue, rowIndex, fieldName) => {
     let value = selectedValue?.target?.value ?? selectedValue;
     const updatedData = [...invoiceData];
@@ -298,7 +292,24 @@ const CreatePurchaseReturn = () => {
           [rowIndex]: [],
         }));
       }
+
+      if (updatedData[rowIndex].purchase_sub_godown_id) {
+        fetchAndSetStock(
+          rowIndex,
+          value,
+          updatedData[rowIndex].purchase_sub_godown_id
+        );
+      }
       focusBoxInput(rowIndex);
+    } else if (fieldName === "purchase_sub_godown_id") {
+      updatedData[rowIndex][fieldName] = value;
+      if (updatedData[rowIndex].purchase_sub_item_id) {
+        fetchAndSetStock(
+          rowIndex,
+          updatedData[rowIndex].purchase_sub_item_id,
+          value
+        );
+      }
     } else {
       if (
         ["purchase_sub_box", "purchase_sub_piece"].includes(fieldName) &&
