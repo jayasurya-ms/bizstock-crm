@@ -249,7 +249,9 @@ const Home = () => {
       (singlebranch === "No" && doublebranch === "Yes");
 
     const isDoubleBranch = singlebranch === "Yes" && doublebranch === "Yes";
-
+    const hasPreBooking = filteredItems.some(
+      (item) => Number(item.pre_box) > 0 || Number(item.pre_piece) > 0
+    );
     if (columnVisibility.available_box) {
       if (isSingleBranchOnly) {
         headers.push("Available");
@@ -259,6 +261,10 @@ const Home = () => {
         if (columnVisibility.piece) headers.push("Available Piece");
         showBoxPiece = true;
       }
+    }
+
+    if (hasPreBooking) {
+      headers.push("Pre booking");
     }
 
     const getRowData = (item) => {
@@ -289,6 +295,14 @@ const Home = () => {
           if (columnVisibility.box) row.push(box);
           if (columnVisibility.piece) row.push(piece);
         }
+      }
+
+      if (hasPreBooking) {
+        row.push(
+          Number(item.pre_box) > 0 || Number(item.pre_piece) > 0
+            ? `${item.pre_box} / ${item.pre_piece}`
+            : ""
+        );
       }
 
       return row;

@@ -42,6 +42,9 @@ function StockTableSection({
   // const doublebranch = "Yes";
   const dispatch = useDispatch();
   const columnVisibility = useSelector((state) => state.columnVisibility);
+  const hasPreBooking = filteredItems?.some(
+    (item) => Number(item.pre_box) > 0 || Number(item.pre_piece) > 0,
+  );
   const handleToggle = (key) => {
     const newVisibility = {
       ...columnVisibility,
@@ -50,7 +53,7 @@ function StockTableSection({
 
     const isDoubleBranch = singlebranch === "Yes" && doublebranch === "Yes";
     const mainColumns = Object.keys(newVisibility).filter(
-      (k) => k !== "box" && k !== "piece"
+      (k) => k !== "box" && k !== "piece",
     );
     const isMainColumnSelected = mainColumns.some((k) => newVisibility[k]);
 
@@ -107,10 +110,12 @@ function StockTableSection({
         const piece = total % itemPiece;
         acc.box += box;
         acc.piece += piece;
+        acc.pre_box += Number(item.pre_box) || 0;
+        acc.pre_piece += Number(item.pre_piece) || 0;
       }
       return acc;
     },
-    { box: 0, piece: 0 }
+    { box: 0, piece: 0, pre_box: 0, pre_piece: 0 },
   );
 
   const convertPiecesToBoxes = (boxTotal, pieceTotal, piecePerBox) => {
@@ -128,7 +133,7 @@ function StockTableSection({
   const totalBoxesAndPieces = convertPiecesToBoxes(
     totals.box,
     totals.piece,
-    piecePerBox
+    piecePerBox,
   );
 
   return (
@@ -395,47 +400,65 @@ function StockTableSection({
                           </th>
                         )}
 
-                      {/* Single Branch Mode */}
-                      {(singlebranch === "Yes" || doublebranch === "Yes") &&
-                        singlebranch !== doublebranch &&
-                        columnVisibility.available_box && (
-                          <th
-                            className="border border-black px-2 py-2 text-center"
-                            rowSpan={2}
-                          >
-                            Available
-                          </th>
-                        )}
+                      {/* Available Headers */}
+                      {columnVisibility.available_box && (
+                        <>
+                          {/* Single Branch Mode */}
+                          {singlebranch !== doublebranch && (
+                            <th
+                              className="border border-black px-2 py-2 text-center"
+                              rowSpan={2}
+                            >
+                              Available
+                            </th>
+                          )}
 
-                      {/* Double Branch Mode */}
+                          {/* Double Branch Mode */}
+                          {singlebranch === "Yes" && doublebranch === "Yes" && (
+                            <th
+                              className="border border-black px-2 py-2 text-center"
+                              colSpan={2}
+                            >
+                              Available
+                            </th>
+                          )}
+                        </>
+                      )}
+
+                      {/* Separate Pre booking Column */}
+                      {hasPreBooking && (
+                        <th className="border border-black px-2 py-2 text-center">
+                          Pre booking
+                        </th>
+                      )}
+                    </tr>
+
+                    {/* Sub-headers Row */}
+                    <tr>
+                      {/* Double Branch Mode Sub-headers for Available */}
                       {singlebranch === "Yes" &&
                         doublebranch === "Yes" &&
                         columnVisibility.available_box && (
-                          <th
-                            className="border border-black px-2 py-2 text-center"
-                            colSpan={2}
-                          >
-                            Available
-                          </th>
+                          <>
+                            {columnVisibility.box && (
+                              <th className="border border-black px-2 py-2 text-center">
+                                Box
+                              </th>
+                            )}
+                            {columnVisibility.piece && (
+                              <th className="border border-black px-2 py-2 text-center">
+                                Piece
+                              </th>
+                            )}
+                          </>
                         )}
-                    </tr>
-
-                    {singlebranch === "Yes" &&
-                      doublebranch === "Yes" &&
-                      columnVisibility.available_box && (
-                        <tr>
-                          {columnVisibility.box && (
-                            <th className="border border-black px-2 py-2 text-center">
-                              Box
-                            </th>
-                          )}
-                          {columnVisibility.piece && (
-                            <th className="border border-black px-2 py-2 text-center">
-                              Piece
-                            </th>
-                          )}
-                        </tr>
+                      {/* Sub-header for Pre booking */}
+                      {hasPreBooking && (
+                        <th className="border border-black px-2 py-2 text-center">
+                          box/piece
+                        </th>
                       )}
+                    </tr>
                   </thead>
 
                   <tbody>
@@ -509,42 +532,56 @@ function StockTableSection({
                               </td>
                             )}
 
-                          {(singlebranch === "Yes" || doublebranch === "Yes") &&
-                            singlebranch !== doublebranch &&
-                            columnVisibility.available_box && (
-                              <td
-                                className={`border border-black px-2 py-2 text-right ${
-                                  total === 0 ? "opacity-50" : ""
-                                }`}
-                              >
-                                {total}
-                              </td>
-                            )}
+                          {/* Available Columns */}
+                          {columnVisibility.available_box && (
+                            <>
+                              {/* Single Mode Available */}
+                              {singlebranch !== doublebranch && (
+                                <td
+                                  className={`border border-black px-2 py-2 text-right ${
+                                    total === 0 ? "opacity-50" : ""
+                                  }`}
+                                >
+                                  {total}
+                                </td>
+                              )}
 
-                          {singlebranch === "Yes" &&
-                            doublebranch === "Yes" &&
-                            columnVisibility.available_box && (
-                              <>
-                                {columnVisibility.box && (
-                                  <td
-                                    className={`border border-black px-2 py-2 text-center ${
-                                      box === 0 ? "opacity-50" : ""
-                                    }`}
-                                  >
-                                    {box}
-                                  </td>
+                              {/* Double Mode Available */}
+                              {singlebranch === "Yes" &&
+                                doublebranch === "Yes" && (
+                                  <>
+                                    {columnVisibility.box && (
+                                      <td
+                                        className={`border border-black px-2 py-2 text-center ${
+                                          box === 0 ? "opacity-50" : ""
+                                        }`}
+                                      >
+                                        {box}
+                                      </td>
+                                    )}
+                                    {columnVisibility.piece && (
+                                      <td
+                                        className={`border border-black px-2 py-2 text-center ${
+                                          piece === 0 ? "opacity-50" : ""
+                                        }`}
+                                      >
+                                        {piece}
+                                      </td>
+                                    )}
+                                  </>
                                 )}
-                                {columnVisibility.piece && (
-                                  <td
-                                    className={`border border-black px-2 py-2 text-center ${
-                                      piece === 0 ? "opacity-50" : ""
-                                    }`}
-                                  >
-                                    {piece}
-                                  </td>
-                                )}
-                              </>
-                            )}
+                            </>
+                          )}
+
+                          {/* Pre booking Column */}
+                          {hasPreBooking && (
+                            <td className="border border-black px-2 py-2 text-center">
+                              {Number(item.pre_box) > 0 ||
+                              Number(item.pre_piece) > 0
+                                ? `${item.pre_box} / ${item.pre_piece}`
+                                : ""}
+                            </td>
+                          )}
                         </tr>
                       );
                     })}
@@ -570,74 +607,85 @@ function StockTableSection({
                             <td className="hidden print:table-cell border border-black px-2 py-2 text-right" />
                           )}
 
-                        {(singlebranch === "Yes" || doublebranch === "Yes") &&
-                          singlebranch !== doublebranch &&
-                          columnVisibility.available_box && (
-                            <td className="border border-black px-2 py-2 text-right">
-                              {filteredItems
-                                .reduce((total, item) => {
-                                  const itemPiece =
-                                    Number(item.item_piece) || 1;
-                                  const openingPurch =
-                                    Number(item.openpurch) * itemPiece +
-                                    Number(item.openpurch_piece);
-                                  const openingSale =
-                                    Number(item.closesale) * itemPiece +
-                                    Number(item.closesale_piece);
-                                  const openingPurchR =
-                                    Number(item.openpurchR) * itemPiece +
-                                    Number(item.openpurchR_piece);
-                                  const openingSaleR =
-                                    Number(item.closesaleR) * itemPiece +
-                                    Number(item.closesaleR_piece);
-                                  const opening =
-                                    openingPurch -
-                                    openingSale -
-                                    openingPurchR +
-                                    openingSaleR;
+                        {/* Available Totals */}
+                        {columnVisibility.available_box && (
+                          <>
+                            {/* Single Mode Totals */}
+                            {singlebranch !== doublebranch && (
+                              <td className="border border-black px-2 py-2 text-right">
+                                {filteredItems
+                                  .reduce((total, item) => {
+                                    const itemPiece =
+                                      Number(item.item_piece) || 1;
+                                    const openingPurch =
+                                      Number(item.openpurch) * itemPiece +
+                                      Number(item.openpurch_piece);
+                                    const openingSale =
+                                      Number(item.closesale) * itemPiece +
+                                      Number(item.closesale_piece);
+                                    const openingPurchR =
+                                      Number(item.openpurchR) * itemPiece +
+                                      Number(item.openpurchR_piece);
+                                    const openingSaleR =
+                                      Number(item.closesaleR) * itemPiece +
+                                      Number(item.closesaleR_piece);
+                                    const opening =
+                                      openingPurch -
+                                      openingSale -
+                                      openingPurchR +
+                                      openingSaleR;
 
-                                  const purchase =
-                                    Number(item.purch) * itemPiece +
-                                    Number(item.purch_piece);
-                                  const purchaseR =
-                                    Number(item.purchR) * itemPiece +
-                                    Number(item.purchR_piece);
-                                  const sale =
-                                    Number(item.sale) * itemPiece +
-                                    Number(item.sale_piece);
-                                  const saleR =
-                                    Number(item.saleR) * itemPiece +
-                                    Number(item.saleR_piece);
+                                    const purchase =
+                                      Number(item.purch) * itemPiece +
+                                      Number(item.purch_piece);
+                                    const purchaseR =
+                                      Number(item.purchR) * itemPiece +
+                                      Number(item.purchR_piece);
+                                    const sale =
+                                      Number(item.sale) * itemPiece +
+                                      Number(item.sale_piece);
+                                    const saleR =
+                                      Number(item.saleR) * itemPiece +
+                                      Number(item.saleR_piece);
 
-                                  return (
-                                    total +
-                                    (opening +
-                                      purchase -
-                                      purchaseR -
-                                      sale +
-                                      saleR)
-                                  );
-                                }, 0)
-                                .toLocaleString()}
-                            </td>
-                          )}
+                                    return (
+                                      total +
+                                      (opening +
+                                        purchase -
+                                        purchaseR -
+                                        sale +
+                                        saleR)
+                                    );
+                                  }, 0)
+                                  .toLocaleString()}
+                              </td>
+                            )}
 
-                        {singlebranch === "Yes" &&
-                          doublebranch === "Yes" &&
-                          columnVisibility.available_box && (
-                            <>
-                              {columnVisibility.box && (
-                                <td className="border border-black px-2 py-2 text-center">
-                                  {totalBoxesAndPieces.boxTotal}
-                                </td>
+                            {/* Double Mode Totals */}
+                            {singlebranch === "Yes" &&
+                              doublebranch === "Yes" && (
+                                <>
+                                  {columnVisibility.box && (
+                                    <td className="border border-black px-2 py-2 text-center">
+                                      {totalBoxesAndPieces.boxTotal}
+                                    </td>
+                                  )}
+                                  {columnVisibility.piece && (
+                                    <td className="border border-black px-2 py-2 text-center">
+                                      {totalBoxesAndPieces.pieceTotal}
+                                    </td>
+                                  )}
+                                </>
                               )}
-                              {columnVisibility.piece && (
-                                <td className="border border-black px-2 py-2 text-center">
-                                  {totalBoxesAndPieces.pieceTotal}
-                                </td>
-                              )}
-                            </>
-                          )}
+                          </>
+                        )}
+
+                        {/* Pre booking Totals */}
+                        {hasPreBooking && (
+                          <td className="border border-black px-2 py-2 text-center">
+                            {totals.pre_box} / {totals.pre_piece}
+                          </td>
+                        )}
                       </tr>
                     )}
                   </tbody>
